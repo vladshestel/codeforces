@@ -18,48 +18,59 @@ namespace Issue
 			Console.WriteLine(answers);
         }
 
-		private static int Solve(int count, int[] numbers) {
-			var answers = 0;
+		private static long Solve(int count, int[] numbers) {
+			if (count < 3) {
+				return 0;
+			}
 
-			for (var i = 0; i < count; ++i) {
-				var first_block_start = 0;
-				var first_block_end = i;
-				var first_weight = SumBetween(numbers, first_block_start, first_block_end);
+			var sum = SumBetween(numbers, 0, count - 1);
+			if (sum % 3 != 0) {
+				return 0;
+			}
 
-				for (var j = i + 1; j < count; ++j) {
-					var second_block_start = first_block_end + 1;
-					var second_block_end = j;
+			var part = sum / 3;
+			var combinations = CountParts(numbers, part);
 
-					var third_block_start = second_block_end + 1;
-					var third_block_end = count - 1;
+			var answers = 0L;
+			var buffer = 0L;
 
-					if (third_block_start >= count) {
-						continue;
-					}
+			for (var i = 0; i < count - 2; ++i) {
+				buffer += numbers[i];
 
-					var second_weight = SumBetween(numbers, second_block_start, second_block_end);
-					if (first_weight != second_weight) {
-						continue;
-					}
-
-					var third_weight = SumBetween(numbers, third_block_start, third_block_end);
-					if (first_weight == third_weight) {
-						answers++;
-					}
+				if (buffer == part) {
+					answers += combinations[i + 2];
 				}
 			}
 
 			return answers;
 		}
 
-		private static int SumBetween(int[] numbers, int start, int end) {
-			var buffer = 0;
+		private static long SumBetween(int[] numbers, int start, int end) {
+			var buffer = 0L;
 
 			for (var i = start; i <= end; ++i) {
 				buffer += numbers[i];
 			}
 
 			return buffer;
+		}
+
+		private static int[] CountParts(int[] numbers, long part) {
+			var combinations = new int[numbers.Length];
+			var buffer = 0L;
+			var count = 0;
+
+			for (var i = numbers.Length - 1; i > 1; --i) {
+				buffer += numbers[i];
+
+				if (buffer == part) {
+					count++;
+				}
+
+				combinations[i] = count;
+			}
+
+			return combinations;
 		}
     }
  
