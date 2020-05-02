@@ -3,138 +3,36 @@ using System.IO;
  
 namespace Issue
 {
-	public class Solver
-	{
-		private int[] _array;
-
-		private int _minimal_unused; // odd
-		private int _minimal_index;
-
-		public void Calculate(int array_length) {
-			_array = new int[array_length];
-
-			var half_size = array_length / 2;
-
-			_minimal_unused = 1;
-			_minimal_index = half_size + 1;
-
-			for (var i = 0; i < half_size; i += 2) {
-				var first_even = (i + 1) * 2;
-				var second_even = (i + 2) * 2;
-
-				_array[i] = first_even;
-				_array[i + 1] = second_even;
-				
-				var first_odd = _minimal_unused;
-				var second_odd = first_even + second_even - first_odd;
-
-				_array[half_size + i] = first_odd;;
-				_array[half_size + i + 1] = second_odd;
-
-				LookupNewMinimal( 
-					bound: half_size + i + 1
-				);
-			}
-		}
-
-		private void LookupNewMinimal(int bound) {
-			var candidate = _minimal_unused + 2;
-
-			while (!IsNumberUnused(bound, candidate)) {
-				candidate += 2;
-			}
-
-			_minimal_unused = candidate;
-		}
-
-		private bool IsNumberUnused(int bound, int candidate) {
-		
-			for (var i = _minimal_index; i <= bound; i += 2) {
-				var item = _array[i];
-
-				if (candidate > item) {
-					_minimal_index = i + 2;
-				}
-				if (candidate == _array[i]) {
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		public void Solve(int array_length) {
-			var half = array_length / 2;
-
-			if ((half % 2) != 0) {
-				Console.WriteLine("NO");
-				return;
-			}
-			
-			var odds_bound = _array.Length / 2;
-
-			Console.WriteLine("YES");
-			for (var i = 0; i < half; i++) {
-				Console.Write(_array[i] + " ");
-			}
-			for (var i = 0; i < half - 1; i++) {
-				Console.Write(_array[odds_bound + i] + " ");
-			}
-
-			Console.WriteLine(_array[odds_bound + half - 1]);
-		}
-	}
-
     public static class Program
     {
         public static void Main(string[] args) {
 			var inputs_count = IO.Read();
-			var inputs = new int[inputs_count];
 
 			for (var i = 0; i < inputs_count; i++) {
 				var array_length = IO.Read();
 
-				inputs[i] = array_length; 
-			}
-
-			var solver = new Solver();
-			
-			var maximal_sequence = FindValidMaximal(inputs);
-			if (maximal_sequence != -1) {
-				solver.Calculate(maximal_sequence);
-			}
-			
-			for (var i = 0; i < inputs_count; i++) {
-				solver.Solve(inputs[i]);
+				Solve(array_length);
 			}
         }
 
-		private static int FindValidMaximal(int[] array) {
-			var maximal = -1;
+		private static void Solve(int array_length) {
+			var half_size = array_length / 2;
 
-			for (var i = 0; i < array.Length; i++) {
-				var candidate = array[i];
-				
-				var isValid = candidate > maximal && (candidate % 4) == 0;
-
-				if (isValid) {
-					maximal = candidate;
-				}
-			}
-
-			return maximal;
-		}
-
-		
-
-		private static void WriteAnswer(int[] array) {
-			if (array == null) {
+			if ((half_size % 2) != 0) {
 				Console.WriteLine("NO");
 				return;
 			}
 			
-			var answer = string.Join(" ", array);
+			var array = new int[array_length];
+			for (var i = 0; i < half_size; i++) {
+				array[i] = (i + 1) * 2;
+				array[half_size + i] = (i * 2) + 1;
+			}
 			
+			var accumulated_diff = half_size;
+			array[array_length - 1] += accumulated_diff;
+
+			var answer = string.Join(" ", array);
 			Console.WriteLine("YES");
 			Console.WriteLine(answer);
 		}
